@@ -13,3 +13,15 @@ repos:
     rev: 5.12.0
     hooks:
     -   id: isort
+-   repo: https://github.com/mwouts/jupytext
+    rev: v1.15.2
+    hooks:
+    -   id: jupytext
+        args: [
+            '--opt', 'notebook_metadata_filter=-kernelspec',
+            '--from', 'myst', '--to', 'myst',
+            '--pipe', 'black', '--pipe-fmt', 'py:percent'
+        ]
+        files: 'docs/source/examples/.*\.md'
+        additional_dependencies:
+        -   black[jupyter]==23.9.1

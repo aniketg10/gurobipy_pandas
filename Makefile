@@ -18,4 +18,3 @@ test:
 
 format:
 	pre-commit run --all-files
-	python -m jupytext --opt notebook_metadata_filter=-kernelspec --from myst --to myst docs/source/examples/*.md
