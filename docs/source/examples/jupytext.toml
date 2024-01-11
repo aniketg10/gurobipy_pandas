@@ -1,0 +1,2 @@
+# Notebooks in this directory should be paired with MyST markdown
+formats = "ipynb,myst"
