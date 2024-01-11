@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.16.0
 ---
 
 # Portfolio selection
@@ -30,13 +30,13 @@ import matplotlib.pyplot as plt
 Import (normalized) historical return data using pandas
 
 ```{code-cell}
-data = pd.read_csv('data/portfolio.csv', index_col=0)
+data = pd.read_csv("data/portfolio.csv", index_col=0)
 ```
 
 Create a new model and add a variable for each stock. The columns in our dataframe correspond to stocks, so the columns can be used directly (as a pandas index) to construct the necessary variable.
 
 ```{code-cell}
-model = gp.Model('Portfolio')
+model = gp.Model("Portfolio")
 stocks = gppd.add_vars(model, data.columns, name="Stock")
 model.update()
 stocks
@@ -53,7 +53,7 @@ model.setObjective(portfolio_risk, GRB.MINIMIZE)
 Fix budget with a constraint. For summation over series, we get back just a single expression, so this constraint is added directly to the model (not through the accessors).
 
 ```{code-cell}
-model.addConstr(stocks.sum() == 1, name='budget');
+model.addConstr(stocks.sum() == 1, name="budget")
 ```
 
 Optimize model to find the minimum risk portfolio.
@@ -72,12 +72,12 @@ Key metrics
 
 ```{code-cell}
 minrisk_volatility = sqrt(portfolio_risk.getValue())
-print('\nVolatility      = %g' % minrisk_volatility)
+print("\nVolatility      = %g" % minrisk_volatility)
 
 stock_return = data.mean()
 portfolio_return = stock_return.dot(stocks)
 minrisk_return = portfolio_return.getValue()
-print('Expected Return = %g' % minrisk_return)
+print("Expected Return = %g" % minrisk_return)
 ```
 
 Solve for the efficient frontier by varying the target return (sampling).
@@ -85,8 +85,10 @@ Solve for the efficient frontier by varying the target return (sampling).
 One useful point here could be the ability to specify scenarios by mapping onto constraints
 
 ```{code-cell}
-scenarios = pd.DataFrame(dict(target_return=np.linspace(stock_return.min(), stock_return.max())))
-target_return = model.addConstr(portfolio_return == minrisk_return, 'target_return')
+scenarios = pd.DataFrame(
+    dict(target_return=np.linspace(stock_return.min(), stock_return.max()))
+)
+target_return = model.addConstr(portfolio_return == minrisk_return, "target_return")
 
 model.update()
 
@@ -105,7 +107,7 @@ for row in scenarios.itertuples():
 
 scenarios = scenarios.assign(ObjVal=pd.Series(results, index=scenarios.index))
 
-scenarios['volatility'] = scenarios['ObjVal'].apply(sqrt)
+scenarios["volatility"] = scenarios["ObjVal"].apply(sqrt)
 scenarios.head()
 ```
 
@@ -113,23 +115,25 @@ scenarios.head()
 # Plot volatility versus expected return for individual stocks
 stock_volatility = data.std()
 ax = plt.gca()
-ax.scatter(x=stock_volatility, y=stock_return,
-           color='Blue', label='Individual Stocks')
+ax.scatter(x=stock_volatility, y=stock_return, color="Blue", label="Individual Stocks")
 for i, stock in enumerate(stocks.index):
     ax.annotate(stock, (stock_volatility[i], stock_return[i]))
 
 # Plot volatility versus expected return for minimum risk portfolio
-ax.scatter(x=minrisk_volatility, y=minrisk_return, color='DarkGreen')
-ax.annotate('Minimum\nRisk\nPortfolio', (minrisk_volatility, minrisk_return),
-            horizontalalignment='right')
+ax.scatter(x=minrisk_volatility, y=minrisk_return, color="DarkGreen")
+ax.annotate(
+    "Minimum\nRisk\nPortfolio",
+    (minrisk_volatility, minrisk_return),
+    horizontalalignment="right",
+)
 
 # Plot efficient frontier
-scenarios.plot.line(x='volatility', y='target_return', ax=ax, color='DarkGreen')
+scenarios.plot.line(x="volatility", y="target_return", ax=ax, color="DarkGreen")
 
 # Format and display the final plot
 ax.axis([0.005, 0.06, -0.02, 0.025])
-ax.set_xlabel('Volatility (standard deviation)')
-ax.set_ylabel('Expected Return')
+ax.set_xlabel("Volatility (standard deviation)")
+ax.set_ylabel("Expected Return")
 ax.legend()
 ax.grid()
 ```

@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.16.0
 ---
 
 # L1 Norm Regression
@@ -146,7 +146,7 @@ abs_error.head()
 
 ```{code-cell}
 # .gppd.get_value() evaluates these expressions at the current solution
-abs_error.gppd.get_value().plot.hist();
+abs_error.gppd.get_value().plot.hist()
 ```
 
 ```{code-cell}

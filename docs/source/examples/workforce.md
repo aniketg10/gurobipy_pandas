@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.16.0
 ---
 
 # Workforce Scheduling
@@ -35,9 +35,7 @@ First read in preference data. The preference data contains 3 columns: a shift d
 
 ```{code-cell}
 preferences = pd.read_csv(
-    "data/preferences.csv",
-    parse_dates=["Shift"],
-    index_col=['Worker', 'Shift']
+    "data/preferences.csv", parse_dates=["Shift"], index_col=["Worker", "Shift"]
 )
 preferences
 ```
@@ -52,9 +50,7 @@ Next load the shift requirements data, which indicates the number of required wo
 
 ```{code-cell}
 shift_requirements = pd.read_csv(
-    "data/shift_requirements.csv",
-    parse_dates=["Shift"],
-    index_col="Shift"
+    "data/shift_requirements.csv", parse_dates=["Shift"], index_col="Shift"
 )
 shift_requirements
 ```
@@ -67,12 +63,12 @@ There are three pandas indices involved in creating this model: workers, shifts,
 
 ```{code-cell}
 m = gp.Model()
-df = (
-    preferences
-    .gppd.add_vars(
-        m, name="assign", vtype=GRB.BINARY, obj="Preference",
-        index_formatter={"Shift": lambda index: index.strftime('%a%d')},
-    )
+df = preferences.gppd.add_vars(
+    m,
+    name="assign",
+    vtype=GRB.BINARY,
+    obj="Preference",
+    index_formatter={"Shift": lambda index: index.strftime("%a%d")},
 )
 df
 ```
@@ -82,11 +78,11 @@ By grouping variables across the shift indices, we can efficiently construct the
 ```{code-cell}
 shift_cover = gppd.add_constrs(
     m,
-    df['assign'].groupby('Shift').sum(),
+    df["assign"].groupby("Shift").sum(),
     GRB.EQUAL,
     shift_requirements["Required"],
     name="shift_cover",
-    index_formatter={"Shift": lambda index: index.strftime('%a%d')},
+    index_formatter={"Shift": lambda index: index.strftime("%a%d")},
 )
 shift_cover
 ```
@@ -102,7 +98,7 @@ m.optimize()
 Extract the solution using the series accessor `.gppd.X`:
 
 ```{code-cell}
-solution = df['assign'].gppd.X
+solution = df["assign"].gppd.X
 solution
 ```
 
@@ -130,6 +126,6 @@ assert isinstance(assigned_shifts, pd.DataFrame)
 assert isinstance(shift_table, pd.DataFrame)
 assigned = len(assigned_shifts)
 free = shift_table.shape[0] * shift_table.shape[1] - assigned
-assert shift_table.stack().value_counts().to_dict() == {'Y': assigned, '-': free}
+assert shift_table.stack().value_counts().to_dict() == {"Y": assigned, "-": free}
 assert m.ObjVal == 96.0
 ```

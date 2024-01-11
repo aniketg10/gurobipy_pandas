@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.16.0
 ---
 
 # Network flow modelling examples
@@ -21,19 +21,21 @@ import gurobipy_pandas as gppd
 ## Min-cost flow network for max-flow computation
 
 ```{code-cell}
-arc_data = pd.DataFrame([
-    {"from": 0, "to": 1, "capacity": 16, "cost": 0},
-    {"from": 0, "to": 2, "capacity": 13, "cost": 0},
-    {"from": 1, "to": 2, "capacity": 10, "cost": 0},
-    {"from": 2, "to": 1, "capacity": 4, "cost": 0},
-    {"from": 1, "to": 3, "capacity": 12, "cost": 0},
-    {"from": 3, "to": 2, "capacity": 9, "cost": 0},
-    {"from": 2, "to": 4, "capacity": 14, "cost": 0},
-    {"from": 4, "to": 3, "capacity": 7, "cost": 0},
-    {"from": 3, "to": 5, "capacity": 20, "cost": 0},
-    {"from": 4, "to": 5, "capacity": 4, "cost": 0},
-    {"from": 5, "to": 0, "capacity": np.inf, "cost": -1},
-]).set_index(["from", "to"])
+arc_data = pd.DataFrame(
+    [
+        {"from": 0, "to": 1, "capacity": 16, "cost": 0},
+        {"from": 0, "to": 2, "capacity": 13, "cost": 0},
+        {"from": 1, "to": 2, "capacity": 10, "cost": 0},
+        {"from": 2, "to": 1, "capacity": 4, "cost": 0},
+        {"from": 1, "to": 3, "capacity": 12, "cost": 0},
+        {"from": 3, "to": 2, "capacity": 9, "cost": 0},
+        {"from": 2, "to": 4, "capacity": 14, "cost": 0},
+        {"from": 4, "to": 3, "capacity": 7, "cost": 0},
+        {"from": 3, "to": 5, "capacity": 20, "cost": 0},
+        {"from": 4, "to": 5, "capacity": 4, "cost": 0},
+        {"from": 5, "to": 0, "capacity": np.inf, "cost": -1},
+    ]
+).set_index(["from", "to"])
 
 arc_data
 ```
@@ -42,21 +44,18 @@ arc_data
 model = gp.Model("max-flow")
 model.ModelSense = GRB.MINIMIZE
 
-arc_df = arc_data.gppd.add_vars(
-    model, ub="capacity", obj="cost", name="flow"
-)
+arc_df = arc_data.gppd.add_vars(model, ub="capacity", obj="cost", name="flow")
 model.update()
 arc_df
 ```
 
 ```{code-cell}
-constrs = (
-    pd.DataFrame({
+constrs = pd.DataFrame(
+    {
         "outflow": arc_df["flow"].groupby("from").sum(),
         "inflow": arc_df["flow"].groupby("to").sum(),
-    })
-    .gppd.add_constrs(model, "outflow == inflow", name="balance")
-)
+    }
+).gppd.add_constrs(model, "outflow == inflow", name="balance")
 model.update()
 constrs
 ```
@@ -71,10 +70,9 @@ arc_df["flow"].gppd.X
 
 ```{code-cell}
 (
-    constrs
-    .assign(
-        inflow_result=lambda df: df['inflow'].apply(gp.LinExpr).gppd.get_value(),
-        outflow_result=lambda df: df['outflow'].apply(gp.LinExpr).gppd.get_value(),
+    constrs.assign(
+        inflow_result=lambda df: df["inflow"].apply(gp.LinExpr).gppd.get_value(),
+        outflow_result=lambda df: df["outflow"].apply(gp.LinExpr).gppd.get_value(),
     )
 )
 ```
@@ -82,27 +80,28 @@ arc_df["flow"].gppd.X
 ## Transshipment / sources / sinks
 
 ```{code-cell}
-arc_data = pd.DataFrame([
-    {"from": 0, "to": 1, "capacity": 16, "cost": 0},
-    {"from": 0, "to": 2, "capacity": 13, "cost": 0},
-    {"from": 1, "to": 2, "capacity": 10, "cost": 0},
-    {"from": 2, "to": 1, "capacity": 4, "cost": 0},
-    {"from": 1, "to": 3, "capacity": 12, "cost": 0},
-    {"from": 3, "to": 2, "capacity": 9, "cost": 0},
-    {"from": 2, "to": 4, "capacity": 14, "cost": 0},
-    {"from": 4, "to": 3, "capacity": 7, "cost": 0},
-    {"from": 3, "to": 5, "capacity": 20, "cost": 0},
-    {"from": 4, "to": 5, "capacity": 4, "cost": 0},
-]).set_index(["from", "to"])
+arc_data = pd.DataFrame(
+    [
+        {"from": 0, "to": 1, "capacity": 16, "cost": 0},
+        {"from": 0, "to": 2, "capacity": 13, "cost": 0},
+        {"from": 1, "to": 2, "capacity": 10, "cost": 0},
+        {"from": 2, "to": 1, "capacity": 4, "cost": 0},
+        {"from": 1, "to": 3, "capacity": 12, "cost": 0},
+        {"from": 3, "to": 2, "capacity": 9, "cost": 0},
+        {"from": 2, "to": 4, "capacity": 14, "cost": 0},
+        {"from": 4, "to": 3, "capacity": 7, "cost": 0},
+        {"from": 3, "to": 5, "capacity": 20, "cost": 0},
+        {"from": 4, "to": 5, "capacity": 4, "cost": 0},
+    ]
+).set_index(["from", "to"])
 
 arc_data
 ```
 
 ```{code-cell}
-demand_data = pd.DataFrame([
-    {"node": 0, "demand": -23},
-    {"node": 5, "demand": 23}
-]).set_index("node")
+demand_data = pd.DataFrame(
+    [{"node": 0, "demand": -23}, {"node": 5, "demand": 23}]
+).set_index("node")
 demand_data
 ```
 
@@ -117,12 +116,14 @@ arc_df
 
 ```{code-cell}
 balance_df = (
-    pd.DataFrame({
-        "inflow": arc_df["flow"].groupby("to").sum(),
-        "outflow": arc_df["flow"].groupby("from").sum(),
-        "demand": demand_data["demand"],
-    })
-    .fillna(0)   # zero fill (some nodes have no in, out, or demand)
+    pd.DataFrame(
+        {
+            "inflow": arc_df["flow"].groupby("to").sum(),
+            "outflow": arc_df["flow"].groupby("from").sum(),
+            "demand": demand_data["demand"],
+        }
+    )
+    .fillna(0)  # zero fill (some nodes have no in, out, or demand)
     .gppd.add_constrs(model, "inflow - outflow == demand", name="balance")
 )
 model.update()
@@ -191,7 +192,7 @@ model.optimize()
 
 ```{code-cell}
 # Check flows against bounds
-arc_df.assign(result=lambda df: df['flow'].gppd.X)
+arc_df.assign(result=lambda df: df["flow"].gppd.X)
 ```
 
 ```{code-cell}
@@ -203,10 +204,9 @@ arc_df.assign(result=lambda df: df['flow'].gppd.X)
 # should handle this gracefully.
 
 (
-    balance_df
-    .assign(
-        inflow_result=lambda df: df['inflow'].apply(gp.LinExpr).gppd.get_value(),
-        outflow_result=lambda df: df['outflow'].apply(gp.LinExpr).gppd.get_value(),
+    balance_df.assign(
+        inflow_result=lambda df: df["inflow"].apply(gp.LinExpr).gppd.get_value(),
+        outflow_result=lambda df: df["outflow"].apply(gp.LinExpr).gppd.get_value(),
     )
 )
 ```

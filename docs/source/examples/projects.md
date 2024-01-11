@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.16.0
 ---
 
 # Project-Team Allocation
@@ -94,7 +94,7 @@ allowed_pairs = (
     pd.merge(
         projects.reset_index(),
         teams.reset_index(),
-        how='cross',
+        how="cross",
     )
     .query("difficulty <= skill")
     .set_index(["project", "team"])
@@ -126,10 +126,7 @@ x
 To add the necessary constraints to the model, we use pandas native groupby and aggregate operations to group our binary assignment variables along with their resource requirements. The result is a Series of expressions capturing the total resource requirement allocated to a team based on the selected assignments:
 
 ```{code-cell}
-total_resource = (
-    (projects["resource"] * x)
-    .groupby("team").sum()
-)
+total_resource = (projects["resource"] * x).groupby("team").sum()
 total_resource
 ```
 
@@ -137,8 +134,11 @@ We then use the free function `gppd.add_constrs` to create constraints by aligni
 
 ```{code-cell}
 capacity_constraints = gppd.add_constrs(
-    model, total_resource, GRB.LESS_EQUAL, teams["capacity"],
-    name='capacity',
+    model,
+    total_resource,
+    GRB.LESS_EQUAL,
+    teams["capacity"],
+    name="capacity",
 )
 capacity_constraints.head()
 ```
@@ -147,8 +147,11 @@ We also need to constrain that each project is allocated to at most one team. Th
 
 ```{code-cell}
 allocate_once = gppd.add_constrs(
-    model, x.groupby('project').sum(),
-    GRB.LESS_EQUAL, 1.0, name="allocate_once",
+    model,
+    x.groupby("project").sum(),
+    GRB.LESS_EQUAL,
+    1.0,
+    name="allocate_once",
 )
 allocate_once.head()
 ```
@@ -172,8 +175,10 @@ Notice that the result is returned on the same index as `x` so we can directly a
 ```{code-cell}
 (
     x.gppd.X.to_frame()
-    .query("x >= 0.9").reset_index()
-    .groupby("team").agg({"project": list})
+    .query("x >= 0.9")
+    .reset_index()
+    .groupby("team")
+    .agg({"project": list})
 )
 ```
 
