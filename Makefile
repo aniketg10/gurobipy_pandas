@@ -1,12 +1,8 @@
-.PHONY: wheel sdist
-
 wheel:
 	python -m build
 
 develop:
-	python -m pip install -e .
-	python -m pip install -r docs/requirements.txt
-	python -m pip install flake8
+	python -m pip install -r requirements-dev.txt
 	pre-commit install
 
 check:

@@ -1,0 +1,7 @@
+-e .
+
+-r docs/requirements.txt
+
+build==1.0.3
+notebook==7.0.6
+flake8==7.0.0
