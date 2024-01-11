@@ -39,3 +39,8 @@ jobs:
       - name: Execute example notebooks
         run: |
           python -m jupytext --set-kernel python3 --execute --to ipynb docs/source/examples/*.md
+      - name: Archive notebooks as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ipynb-artifact
+          path: docs/source/examples/*.ipynb
