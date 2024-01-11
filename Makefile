@@ -3,6 +3,7 @@ wheel:
 
 develop:
 	python -m pip install -r requirements-dev.txt
+	python -m jupytext --sync docs/source/examples/*.md
 	pre-commit install
 
 check:
