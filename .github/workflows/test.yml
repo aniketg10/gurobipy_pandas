@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - ipynb
   pull_request_target:
     branches:
       - main

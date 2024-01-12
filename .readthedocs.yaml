@@ -4,6 +4,9 @@ build:
   os: "ubuntu-20.04"
   tools:
     python: "3.8"
+  jobs:
+    pre_build:
+      - python artifacts.py
 
 sphinx:
   fail_on_warning: false
