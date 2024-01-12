@@ -64,13 +64,13 @@ def download_executed_notebooks(runs_url, gh_token, head_sha):
 
 
 # Run as pre-build step on RTD
-# Local test: READTHEDOCS_GIT_COMMIT_HASH=95e93023a278bbf8e0471e0f48cf64c4413415ac READTHEDOCS=True GH_API_TOKEN=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 python artifacts.py
+# Use a fine-grained personal access token with no extra permissions (for public repos)
+# Local test: READTHEDOCS_GIT_COMMIT_HASH=$(git rev-parse HEAD) READTHEDOCS=True GH_API_TOKEN=<TOKEN> python artifacts.py
 
 assert os.environ.get("READTHEDOCS") == "True"
 
 success = download_executed_notebooks(
     runs_url="https://api.github.com/repos/Gurobi/gurobipy-pandas/actions/runs",
-    # public repo scope is enough (for public repos)
     gh_token=os.environ["GH_API_TOKEN"],
     head_sha=os.environ["READTHEDOCS_GIT_COMMIT_HASH"],
 )
@@ -79,5 +79,6 @@ if success:
     sys.exit(0)  # Success, RTD build can continue
 else:
     sys.exit(183)  # Cancels the RTD build (rely on a later trigger to rebuild)
+    # Configure webhook to fire on completed actions
 
 # Any error would be a build failure
