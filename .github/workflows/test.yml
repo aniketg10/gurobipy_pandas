@@ -23,6 +23,7 @@ jobs:
 
   trigger-rtd-build:
     runs-on: ubuntu-latest
+    needs: [notebook-examples, unit-tests, code-quality]
     steps:
       - name: Trigger RTD build for ipynb branch
         env:
