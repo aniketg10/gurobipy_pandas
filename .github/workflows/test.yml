@@ -20,3 +20,9 @@ jobs:
   notebook-examples:
     uses: ./.github/workflows/notebook-examples.yml
     needs: [unit-tests]
+
+  trigger-rtd-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger RTD build for ipynb branch
+        run: curl -X POST -d "branches=ipynb" -d "token=$RTD_HOOK_TOKEN" -d "default_branch=main" https://readthedocs.com/api/v2/webhook/gurobi-optimization-gurobipy-pandas/11030/

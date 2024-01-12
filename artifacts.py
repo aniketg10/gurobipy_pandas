@@ -79,6 +79,7 @@ if success:
     sys.exit(0)  # Success, RTD build can continue
 else:
     sys.exit(183)  # Cancels the RTD build (rely on a later trigger to rebuild)
-    # Configure webhook to fire on completed actions
+    # Configure webhook to fire on completed actions *** doesn't work
+    # Need to use the generic webhook API
 
 # Any error would be a build failure
