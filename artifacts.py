@@ -1,6 +1,7 @@
 import io
 import os
 import pathlib
+import sys
 import zipfile
 
 import requests
@@ -27,6 +28,8 @@ def download_executed_notebooks(runs_url, gh_token, head_sha):
         if run["path"] != ".github/workflows/test.yml":
             continue
         if run["status"] != "completed":
+            continue
+        if run["conclusion"] != "success":
             continue
 
         artifacts_url = run["artifacts_url"]
