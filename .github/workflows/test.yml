@@ -25,4 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger RTD build for ipynb branch
+        env:
+          RTD_HOOK_TOKEN: ${{ secrets.RTD_HOOK_TOKEN }}
         run: curl -X POST -d "branches=ipynb" -d "token=$RTD_HOOK_TOKEN" -d "default_branch=main" https://readthedocs.com/api/v2/webhook/gurobi-optimization-gurobipy-pandas/11030/
