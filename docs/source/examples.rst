@@ -17,3 +17,4 @@ the notebooks.
    examples/projects
    examples/regression
    examples/workforce
+   examples/netflow
